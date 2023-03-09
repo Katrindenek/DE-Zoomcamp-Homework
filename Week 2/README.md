@@ -48,6 +48,8 @@ Using the flow in `etl_web_to_gcs.py`, create a deployment to run on the first o
 - `5 * 1 0 *`
 - `* * 5 1 0`
 
+### Solution:
+
 The answer is __`0 5 1 * *`__. 
 
 There are several ways to set up a schedule in Prefect.
@@ -74,3 +76,93 @@ docker_dep = Deployment.build_from_flow(
     schedule={"cron": "0 5 1 * *"}
 )
 ```
+
+### Question 3. Loading data to BigQuery 
+
+Using `etl_gcs_to_bq.py` as a starting point, modify the script for extracting data from GCS and loading it into BigQuery. This new script should not fill or remove rows with missing values. (The script is really just doing the E and L parts of ETL).
+
+The main flow should print the total number of rows processed by the script. Set the flow decorator to log the print statement.
+
+Parametrize the entrypoint flow to accept a list of months, a year, and a taxi color. 
+
+Make any other necessary changes to the code for it to function as required.
+
+Create a deployment for this flow to run in a local subprocess with local flow code storage (the defaults).
+
+Make sure you have the parquet data files for Yellow taxi data for Feb. 2019 and March 2019 loaded in GCS. Run your deployment to append this data to your BiqQuery table. How many rows did your flow code process?
+
+- 14,851,920
+- 12,282,990
+- 27,235,753
+- 11,338,483
+
+### Solution.
+
+Unfortunately, I could not use Google Cloud. [The Yandex Query](https://cloud.yandex.com/en/docs/query/concepts/), as I understood, doesn't really store data but takes them from the Object Storage via connections. It didn't make sense to me to work on anything like "etl_ycs_to_yq.py" Python script, so I loaded the required data into the Object Storage using the described earlier script, connected to it with Yandex Query UI and completed the following query:
+```
+SELECT
+    COUNT(*)
+FROM
+    (SELECT 
+        *
+    FROM
+        `de-zoomcamp-prefect`.`data/yellow/yellow_tripdata_2019-02.csv`
+    WITH (
+        format='csv_with_names',
+        SCHEMA 
+        (
+            `VendorID` double,
+            `tpep_pickup_datetime` Datetime,
+            `tpep_dropoff_datetime` Datetime,
+            `passenger_count` Double,
+            `trip_distance` Double,
+            `RatecodeID` Double,
+            `store_and_fwd_flag` String,
+            `PULocationID` Int64,
+            `DOLocationID` Int64,
+            `payment_type` Double,
+            `fare_amount` Double,
+            `extra` Double,
+            `mta_tax` Double,
+            `tip_amount` Double,
+            `tolls_amount` Double,
+            `improvement_surcharge` Double,
+            `total_amount` Double,
+            `congestion_surcharge` Double
+        )
+    )
+    UNION ALL
+    SELECT 
+        *
+    FROM
+        `de-zoomcamp-prefect`.`data/yellow/yellow_tripdata_2019-03.csv`
+    WITH (
+        format='csv_with_names',
+        SCHEMA 
+        (
+            `VendorID` double,
+            `tpep_pickup_datetime` Datetime,
+            `tpep_dropoff_datetime` Datetime,
+            `passenger_count` Double,
+            `trip_distance` Double,
+            `RatecodeID` Double,
+            `store_and_fwd_flag` String,
+            `PULocationID` Int64,
+            `DOLocationID` Int64,
+            `payment_type` Double,
+            `fare_amount` Double,
+            `extra` Double,
+            `mta_tax` Double,
+            `tip_amount` Double,
+            `tolls_amount` Double,
+            `improvement_surcharge` Double,
+            `total_amount` Double,
+            `congestion_surcharge` Double
+        )
+    )
+);
+```
+
+As you can see, the files actually have the `.csv` format. That's because [Yandex Query](https://cloud.yandex.com/en/docs/query/sources-and-sinks/formats#parquet) currently doesn't support `.parquet` files with size more than 50 MB. So, I also had to modify my `etl_web_to_ycs.py` script a bit and create another temporary deployment for that purpose... Perhaps, it is worth adding the file format as another parameter to the current deployment to be able to resolve such issues faster.
+
+The answer is: __14,851,920__.
