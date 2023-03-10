@@ -166,3 +166,32 @@ FROM
 As you can see, the files actually have the `.csv` format. That's because [Yandex Query](https://cloud.yandex.com/en/docs/query/sources-and-sinks/formats#parquet) currently doesn't support `.parquet` files with size more than 50 MB. So, I also had to modify my `etl_web_to_ycs.py` script a bit and create another temporary deployment for that purpose... Perhaps, it is worth adding the file format as another parameter to the current deployment to be able to resolve such issues faster.
 
 The answer is: __14,851,920__.
+
+### Question 4. Github Storage Block
+
+Using the `web_to_gcs` script from the videos as a guide, you want to store your flow code in a GitHub repository for collaboration with your team. Prefect can look in the GitHub repo to find your flow code and read it. Create a GitHub storage block from the UI or in Python code and use that in your Deployment instead of storing your flow code locally or baking your flow code into a Docker image. 
+
+Note that you will have to push your code to GitHub, Prefect will not push it for you.
+
+Run your deployment in a local subprocess (the default if you don’t specify an infrastructure). Use the Green taxi data for the month of November 2020.
+
+How many rows were processed by the script?
+
+- 88,019
+- 192,297
+- 88,605
+- 190,225
+
+### Solution.
+
+The GitHub block "zoom-github" was created via Prefect Orion UI referring to the current repository. The following command created a deployment named "etl_github":
+```
+prefect deployment build "Week 2/flows/etl_web_to_ycs.py":etl_parent_flow --name etl_github -sb github/zoom-github -a
+```
+
+The deployment was run by the command
+```
+prefect deployment run etl-parent-flow/etl_github -p "months=[11]" -p "year=2020" -p "color=green"
+```
+
+The answer is: __88,605__.
