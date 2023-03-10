@@ -22,12 +22,15 @@ def clean(df: pd.DataFrame) -> pd.DataFrame:
         df[column] = pd.to_datetime(df[column])
         print(f"The column {column}'s type is {df[column].dtype}")
 
+    print("Total rows:", len(df))
     return df
 
 
 @task()
 def write_local(df: pd.DataFrame, color: str, dataset_file: str) -> Path:
     """Write DataFrame out locally as parquet file"""
+    #path = Path(f"./data/{color}/{dataset_file}.parquet")
+    #df.to_parquet(path, compression="gzip")
     path = Path(f"./data/{color}/{dataset_file}.parquet")
     df.to_parquet(path, compression="gzip")
     return path
