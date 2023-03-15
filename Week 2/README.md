@@ -167,6 +167,35 @@ As you can see, the files actually have the `.csv` format. That's because [Yande
 
 The answer is: __14,851,920__.
 
+### Question 4. Github Storage Block
+
+Using the `web_to_gcs` script from the videos as a guide, you want to store your flow code in a GitHub repository for collaboration with your team. Prefect can look in the GitHub repo to find your flow code and read it. Create a GitHub storage block from the UI or in Python code and use that in your Deployment instead of storing your flow code locally or baking your flow code into a Docker image. 
+
+Note that you will have to push your code to GitHub, Prefect will not push it for you.
+
+Run your deployment in a local subprocess (the default if you don’t specify an infrastructure). Use the Green taxi data for the month of November 2020.
+
+How many rows were processed by the script?
+
+- 88,019
+- 192,297
+- 88,605
+- 190,225
+
+### Solution.
+
+The GitHub block "zoom-github" was created via Prefect Orion UI referring to the current repository. The following command created a deployment named "etl_github":
+```
+prefect deployment build "Week 2/flows/etl_web_to_ycs.py":etl_parent_flow --name etl_github -sb github/zoom-github -a
+```
+
+The deployment was run by the command
+```
+prefect deployment run etl-parent-flow/etl_github -p "months=[11]" -p "year=2020" -p "color=green"
+```
+
+The answer is: __88,605__.
+
 ### Question 5. Email or Slack notifications
 
 Q5. It’s often helpful to be notified when something with your dataflow doesn’t work as planned. Choose one of the options below for creating email or slack notifications.
@@ -215,3 +244,5 @@ Prefect Secret blocks provide secure, encrypted storage in the database and obfu
 #### Solution.
 
 Prefect allows storing encrypted credentials and use them in code without exposing such vulnerable data.
+
+The answer is __8__.
