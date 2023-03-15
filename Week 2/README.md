@@ -228,7 +228,7 @@ How many rows were processed by the script?
 
 I created my own Slack workspace and Slack App to complete this task. I generated a Webhook URL in the Slack app and added it to Notifications tab in Prefect Orion UI. Now, if a run of any flow with any tag enters any state, I get a notification.
 
-<img src="https://github.com/Katrindenek/DE-Zoomcamp-Homework/blob/ba097935e8d2c694833a52a03ff665f342431378/Week%202/pictures/slack_notification.png" width="400">
+<img src="https://github.com/Katrindenek/DE-Zoomcamp-Homework/blob/47b6a75cceed4bfcbf89aaa77765ac3f08541582/Week%202/pictures/slack_notification.png" width="400">
 
 The answer is __514,392__.
 
